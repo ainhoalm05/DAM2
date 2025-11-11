@@ -17,68 +17,58 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-/**
- * Main.java
- *
- * Implementa la aplicación completa y satisface los requisitos del enunciado.
- * - Constantes reducidas (máx 5 líneas)
- * - Muchas rutas/variables se crean localmente donde se usan
- * - Uso de RandomAccessFile para plantas.dat (registro: int codigo, float precio, int stock) -> 12 bytes
- * - Empleados serializados en EMPLEADOS/empleados.dat
- * - Tickets en TICKETS/ como ficheros de texto; devoluciones en DEVOLUCIONES/
- *
- * Comentarios en español explicando cada bloque.
- */
 public class Main {
 
-    // ---------------------- CONSTANTES (máx 5 líneas) ----------------------
+    // ---------------------- CONSTANTES ----------------------
     private static final Scanner sc = new Scanner(System.in);
-    private static final int RECORD_SIZE = 12; // bytes por registro en plantas.dat (int+float+int)
-    private static final String DIR_PLANTAS = "PLANTAS";
-    private static final String DIR_EMPLEADOS = "EMPLEADOS";
-    private static final String DIR_TICKETS = "TICKETS";
+    private static final int TAMANO = 12; // bytes por registro en plantas.dat (int+float+int)
+    private static final String DIR_PLANTAS = "PLANTAS"; //Carpetas de las plantas
+    private static final String DIR_EMPLEADOS = "EMPLEADOS"; //Carpeta de los empleados
+    private static final String DIR_TICKETS = "TICKETS"; //Carpeta de los tickets
 
     // ---------------------------------------------------------------------
 
     public static void main(String[] args) {
         System.out.println("== INICIO APLICACIÓN VIVERO ==");
 
-        // 1) Comprobación / creación de árbol de directorios y ficheros básicos
+        //1 Comprobación / creación de árbol de directorios y ficheros básicos
         if (!comprobarYCrearEstructura()) {
-            System.err.println("Error en estructura de directorios. Comprueba permisos.");
+        	System.out.println("Error en estructura de directorios.");
             return;
         }
 
-        // 2) Carga de datos (empleados y plantas)
         List<Empleado> empleados = cargarEmpleados(Paths.get(DIR_EMPLEADOS, "empleados.dat").toFile());
-        if (empleados == null || empleados.isEmpty()) {
-            System.out.println("No se han encontrado empleados.");
-            System.out.print("¿Deseas crear empleados por defecto? (si/no): ");
-            String r = sc.nextLine();
-            if (r.equalsIgnoreCase("si")) {
-                crearEmpleadosPorDefecto();
-                empleados = cargarEmpleados(Paths.get(DIR_EMPLEADOS, "empleados.dat").toFile());
-            } else {
-                System.out.println("Sin empleados no puede iniciarse la sesión. Saliendo.");
-                return;
-            }
+        if (empleados == null) {
+        	System.out.println("Error al cargar empleados. Saliendo.");
+            return;
         }
 
+        // Mostrar empleados antes del login (útil para ver credenciales en pruebas)
+        System.out.println("\n=== EMPLEADOS EN SISTEMA ===");
+        if (empleados.isEmpty()) {
+            System.out.println("No hay empleados registrados.");
+            
+        } else {
+            // Mostrar lista: ID, nombre, cargo y (solo en pruebas) la contraseña
+            for (Empleado e : empleados) {
+                System.out.println("ID: " + e.getId() + " | Nombre: " + e.getNombre() + " | Cargo: " + e.getCargo()
+                        + " | Password (pruebas): " + e.getPassword());
+            }
+        }
+        System.out.println("================================\n");
+
+        // 2.1 / 2.2 -> cargar plantas desde XML (campos descriptivos)
         List<Plantas> plantas = cargarPlantasDesdeXML(Paths.get(DIR_PLANTAS, "plantas.xml").toFile());
-        if (plantas == null || plantas.isEmpty()) {
-            System.out.println("plantas.xml no contiene datos o no existe.");
-            System.out.print("¿Deseas crear plantas por defecto? (si/no): ");
-            String r2 = sc.nextLine();
-            if (r2.equalsIgnoreCase("si")) {
-                crearPlantasPorDefecto();
-                plantas = cargarPlantasDesdeXML(Paths.get(DIR_PLANTAS, "plantas.xml").toFile());
-            } else {
-                System.out.println("No hay catálogo de plantas. Saliendo.");
-                return;
-            }
+        if (plantas == null) {
+            System.err.println("Error cargando plantas desde XML. Saliendo.");
+            return;
+        }
+        if (plantas.isEmpty()) {
+            System.out.println("El catálogo de plantas está vacío. Puedes dar de alta plantas más tarde desde gestor.");
+            // No salimos: el gestor podrá añadir.
         }
 
-        // 2.1 - Sincronizar precios/stock desde plantas.dat (crea registros si faltan)
+        // 2.1 Sincronizar precios/stock con plantas.dat (crea registros si faltan)
         sincronizarPlantasDat(plantas);
 
         // 3) Identificación de usuario (login)
@@ -152,7 +142,7 @@ public class Main {
      * Lee empleados desde empleados.dat (serializado ArrayList<Empleado>).
      * Devuelve null en caso de error.
      */
-    @SuppressWarnings("unchecked")
+   
     private static ArrayList<Empleado> cargarEmpleados(File f) {
         if (!f.exists() || f.length() == 0) return new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
@@ -258,8 +248,8 @@ public class Main {
         File dat = Paths.get(DIR_PLANTAS, "plantas.dat").toFile();
         try (RandomAccessFile raf = new RandomAccessFile(dat, "rw")) {
             for (Plantas p : lista) {
-                long pos = (long) (p.getCodigo() - 1) * RECORD_SIZE;
-                if (pos + RECORD_SIZE <= raf.length()) {
+                long pos = (long) (p.getCodigo() - 1) * TAMANO;
+                if (pos + TAMANO <= raf.length()) {
                     raf.seek(pos);
                     int codigo = raf.readInt();
                     float precio = raf.readFloat();
@@ -310,7 +300,7 @@ public class Main {
     private static float leerPrecioDat(int codigo) {
         File dat = Paths.get(DIR_PLANTAS, "plantas.dat").toFile();
         try (RandomAccessFile raf = new RandomAccessFile(dat, "r")) {
-            raf.seek((long) (codigo - 1) * RECORD_SIZE + 4);
+            raf.seek((long) (codigo - 1) * TAMANO + 4);
             return raf.readFloat();
         } catch (Exception e) {
             return 0f;
@@ -323,7 +313,7 @@ public class Main {
     private static int leerStockDat(int codigo) {
         File dat = Paths.get(DIR_PLANTAS, "plantas.dat").toFile();
         try (RandomAccessFile raf = new RandomAccessFile(dat, "r")) {
-            raf.seek((long) (codigo - 1) * RECORD_SIZE + 8);
+            raf.seek((long) (codigo - 1) * TAMANO + 8);
             return raf.readInt();
         } catch (Exception e) {
             return 0;
@@ -336,7 +326,7 @@ public class Main {
     private static void escribirRegistroDat(int codigo, float precio, int stock) throws IOException {
         File dat = Paths.get(DIR_PLANTAS, "plantas.dat").toFile();
         try (RandomAccessFile raf = new RandomAccessFile(dat, "rw")) {
-            long pos = (long) (codigo - 1) * RECORD_SIZE;
+            long pos = (long) (codigo - 1) * TAMANO;
             raf.seek(pos);
             raf.writeInt(codigo);
             raf.writeFloat(precio);
@@ -1132,7 +1122,7 @@ public class Main {
         }
     }
 
-    // ------------------------ Helpers y utilidades ------------------------
+    // ------------------------ utilidades ------------------------
 
     private static int siguienteNumeroTicket() {
         try {
@@ -1169,44 +1159,5 @@ public class Main {
         }
         // opcional: añadir a plantasBaja.xml (hemos implementado rescatarPlanta que lo lee)
     }
-    // ------------------ Funciones para crear por defecto datos (empleados/plantas) ------------------
-
-    // Crea un conjunto de empleados por defecto y los guarda en empleados.dat
-    private static void crearEmpleadosPorDefecto() {
-        ArrayList<Empleado> lista = new ArrayList<>(); // lista por defecto
-        lista.add(new Empleado(1452, "Teresa", "asb123", "vendedor")); // empleado 1
-        lista.add(new Empleado(1560, "Miguel Ángel", "123qwe", "gestor")); // empleado 2
-        lista.add(new Empleado(7532, "Natalia", "xs21qw", "gestor")); // empleado 3
-        guardarEmpleados(lista, Paths.get(DIR_EMPLEADOS, "empleados.dat").toFile()); // guardar en disco
-        System.out.println("Empleados por defecto creados."); // confirmar
-    }
-
-    // Crea plantas por defecto: genera XML y plantas.dat con precios/stock aleatorios
-    private static void crearPlantasPorDefecto() {
-        ArrayList<Plantas> lista = new ArrayList<>(); // lista contenedora
-        for (int i = 1; i <= 20; i++) { // crear 20 plantas
-            lista.add(new Plantas(i, "Planta" + i, "foto" + i + ".jpg", "Descripción " + i, 0f, 0)); // objeto base
-        }
-        // guardar XML
-        guardarPlantasXML(lista, Paths.get(DIR_PLANTAS, "plantas.xml").toFile()); // guardar xml
-        // escribir dat con registros para cada planta
-        File dat = Paths.get(DIR_PLANTAS, "plantas.dat").toFile(); // ruta dat
-        try (RandomAccessFile raf = new RandomAccessFile(dat, "rw")) { // abrir
-            raf.setLength(0); // reset archivo
-            for (Plantas p : lista) { // escribir cada registro
-                raf.writeInt(p.getCodigo()); // codigo
-                float precio = ThreadLocalRandom.current().nextFloat() * 40f + 10f; // precio aleatorio
-                precio = Math.round(precio * 100f) / 100f; // redondear
-                raf.writeFloat(precio); // escribir precio
-                int stock = ThreadLocalRandom.current().nextInt(1, 100); // stock aleatorio
-                raf.writeInt(stock); // escribir stock
-            }
-        } catch (IOException e) { // error IO
-            System.err.println("Error creando plantas.dat: " + e.getMessage()); // mensaje
-        }
-        System.out.println("Plantas por defecto creadas."); // confirmar
-    }
-
-    // ------------------ FIN DE LA CLASE Main ------------------
-
+    
 }

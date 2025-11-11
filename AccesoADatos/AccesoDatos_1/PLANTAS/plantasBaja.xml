@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plantas>
+    <planta>
+        <codigo>2</codigo>
+        <nombre>Geranio</nombre>
+        <foto>geranio.jpg</foto>
+        <descripcion>Flor común de jardín con colores vivos.</descripcion>
+    </planta>
+</plantas>

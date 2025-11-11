@@ -80,24 +80,24 @@ public class Main {
         // 3) Identificación de usuario (login)
         // Llama al método de login, que devuelve el Empleado si es correcto, o null si falla.
         // (Rúbrica 3.1)
-        Empleado logged = login(empleados);
+        Empleado logeado = login(empleados);
         
-        if (logged == null) { // Si el login falla (3 intentos)
+        if (logeado == null) { // Si el login falla (3 intentos)
             System.out.println("No se pudo iniciar sesión. Saliendo.");
             return; // Termina la aplicación (Rúbrica 3.3)
         }
 
         // 3.2 Mostrar menú según cargo del empleado
         // (Rúbrica 3.2)
-        if (logged.getCargo().equalsIgnoreCase("vendedor")) {
+        if (logeado.getCargo().equalsIgnoreCase("vendedor")) {
             // Si es vendedor, llama al menú de vendedor
             // Pasa la lista de bajas por si una venta provoca una baja automática
-            menuVendedor(logged, plantas, plantasBaja);
-        } else if (logged.getCargo().equalsIgnoreCase("gestor")) {
+            menuVendedor(logeado, plantas, plantasBaja);
+        } else if (logeado.getCargo().equalsIgnoreCase("gestor")) {
             // Si es gestor, carga también la lista de empleados de baja
             List<Empleado> empleadosBaja = cargarEmpleados(Paths.get(DIR_EMPLEADOS, "BAJA", "empleadosBaja.dat").toFile());
             // Llama al menú de gestor
-            menuGestor(logged, plantas, plantasBaja, empleados, empleadosBaja);
+            menuGestor(logeado, plantas, plantasBaja, empleados, empleadosBaja);
         } else {
             // Si el cargo no es reconocido
             System.out.println("Cargo desconocido. Contacte con administración.");
@@ -112,7 +112,7 @@ public class Main {
         // Guarda la lista de plantas de baja (en memoria) en el fichero plantasBaja.xml
         guardarPlantasXML(plantasBaja, Paths.get(DIR_PLANTAS, "plantasBaja.xml").toFile());
         
-        // Guarda la lista de empleados activos (en memoria) en empleados.dat usando Serialización
+        // Guarda la lista de empleados activos (en memoria) en empleados.dat
         guardarEmpleados(empleados, Paths.get(DIR_EMPLEADOS, "empleados.dat").toFile());
         // Nota: empleadosBaja.dat se guarda al salir del menú gestor.
 
@@ -169,10 +169,8 @@ public class Main {
      * Lee empleados desde empleados.dat (serializado ArrayList<Empleado>).
      * ESTE MÉTODO USA LA LÓGICA DE ObjectInputStream (como en Ejemplo1.LecturaPersonas).
      * (Rúbrica 2.3, 2.4)
-     * @param f El fichero (empleados.dat o empleadosBaja.dat) a leer.
-     * @return un ArrayList<Empleado> con los datos, o null si hay error.
      */
-    @SuppressWarnings("unchecked") // Necesario para el cast de (ArrayList<Empleado>)
+  
     private static ArrayList<Empleado> cargarEmpleados(File f) {
         // Si no existe o está vacío (longitud 0) devuelve una lista vacía nueva
         if (!f.exists() || f.length() == 0) return new ArrayList<>();
@@ -180,20 +178,12 @@ public class Main {
         // Usamos try-with-resources para asegurar que el ObjectInputStream se cierra
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             
-            // Leemos el *único* objeto que esperamos que haya en el fichero (el ArrayList)
+            // Lo pasamos a Objeto para poder trabajar conel debido al tipo de funcion que tengo
             Object o = ois.readObject();
-            
-            // Comprobamos que el objeto leído sea realmente un ArrayList
-            if (o instanceof ArrayList) {
-                // Si lo es, hacemos el cast (conversión) y lo devolvemos
+                // Hacemos el cast y lo devolvemos
                 return (ArrayList<Empleado>) o;
-            } else {
-                // Si el fichero contiene algo que no es un ArrayList, es un error
-                System.err.println("Formato de " + f.getName() + " no válido.");
-                return null; // (Rúbrica 2.5)
-            }
-        } catch (Exception e) { // Captura IOException, ClassNotFoundException, etc.
-            // Si hay cualquier error (fichero corrupto, clase no encontrada)
+            
+        } catch (Exception e) { 
             System.err.println("Error leyendo " + f.getName() + ": " + e.getMessage());
             return null; // (Rúbrica 2.5)
         }
@@ -201,17 +191,11 @@ public class Main {
 
     /**
      * Sobreescribe el fichero .dat con la lista de empleados proporcionada.
-     * ESTE MÉTODO USA LA LÓGICA DE ObjectOutputStream (como en Ejemplo1.EscrituraPersonas).
      * (Rúbrica 8.2.1.3, 8.2.2.3)
-     * @param lista La lista (List<Empleado>) a guardar.
-     * @param f El fichero (empleados.dat o empleadosBaja.dat) donde guardar.
      */
-    private static void guardarEmpleados(List<Empleado> lista, File f) {
-        // Usamos try-with-resources para asegurar que el ObjectOutputStream se cierra
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
-            
+    private static void guardarEmpleados(List<Empleado> lista, File f) { //Lista de la que partimos, fichero final
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {  //Hacer legible la clase Empleado        
             // Escribimos la lista completa como un solo objeto en el fichero
-            // Creamos una nueva instancia de ArrayList por si acaso la lista de entrada no es serializable
             oos.writeObject(new ArrayList<>(lista));
         } catch (IOException e) { // Si hay un error de escritura
             System.err.println("Error guardando " + f.getName() + ": " + e.getMessage());
@@ -221,13 +205,13 @@ public class Main {
     /**
      * Carga plantas desde un fichero XML (solo campos descriptivos).
      * (Rúbrica 2.2)
-     * @param xml El fichero XML (plantas.xml o plantasBaja.xml) a leer.
-     * @return un ArrayList<Plantas> con los datos, o null si hay error.
      */
     private static ArrayList<Plantas> cargarPlantasDesdeXML(File xml) {
         ArrayList<Plantas> salida = new ArrayList<>(); // Lista de salida
         // Si el XML no existe o está vacío, devolvemos la lista vacía
-        if (!xml.exists() || xml.length() == 0) return salida;
+        if (!xml.exists() || xml.length() == 0) {
+        	return salida;
+        }
 
         try {
             // 1. Crear un DocumentBuilder (el "parseador")

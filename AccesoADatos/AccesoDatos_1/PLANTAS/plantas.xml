@@ -120,4 +120,10 @@
         <foto/>
         <descripcion>Verde y multiples colores</descripcion>
     </planta>
+    <planta>
+        <codigo>42082</codigo>
+        <nombre>Villarious Maximos</nombre>
+        <foto/>
+        <descripcion>Esta planta es autoctona de la peninsula iberica, su principal y útil caracteristica es, eliminar y matar plantas no autoctonas de su habitat.</descripcion>
+    </planta>
 </plantas>

@@ -1,8 +1,7 @@
 TICKET Nº 1
-Fecha: 11/11/2025 20:43:29
-Empleado ID: 1452 Nombre: Teresa
+Fecha: 12/11/2025 00:35:17
+Empleado ID: 33 Nombre: Fernando Chinchón Alonso
 ---------------------------------
-001 10 6,50
-003 5 9,50
+42082 1 10,99
 ---------------------------------
-TOTAL: 112,50 €
+TOTAL: 10,99 €

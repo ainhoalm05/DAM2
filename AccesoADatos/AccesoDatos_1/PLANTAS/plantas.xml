@@ -2,128 +2,122 @@
 <plantas>
     <planta>
         <codigo>1</codigo>
-        <nombre>Cactus</nombre>
-        <foto>cactus.jpg</foto>
-        <descripcion>Planta suculenta del desierto.</descripcion>
+        <nombre>Planta1</nombre>
+        <foto>foto1.jpg</foto>
+        <descripcion>Descripción 1</descripcion>
+    </planta>
+    <planta>
+        <codigo>2</codigo>
+        <nombre>Planta2</nombre>
+        <foto>foto2.jpg</foto>
+        <descripcion>Descripción 2</descripcion>
     </planta>
     <planta>
         <codigo>3</codigo>
-        <nombre>Helecho</nombre>
-        <foto>helecho.jpg</foto>
-        <descripcion>Planta de sombra con hojas verdes largas.</descripcion>
+        <nombre>Planta3</nombre>
+        <foto>foto3.jpg</foto>
+        <descripcion>Descripción 3</descripcion>
     </planta>
     <planta>
         <codigo>4</codigo>
-        <nombre>Rosa</nombre>
-        <foto>rosa.jpg</foto>
-        <descripcion>Flor ornamental con espinas.</descripcion>
+        <nombre>Planta4</nombre>
+        <foto>foto4.jpg</foto>
+        <descripcion>Descripción 4</descripcion>
     </planta>
     <planta>
         <codigo>5</codigo>
-        <nombre>Lavanda</nombre>
-        <foto>lavanda.jpg</foto>
-        <descripcion>Planta aromática de color violeta.</descripcion>
+        <nombre>Planta5</nombre>
+        <foto>foto5.jpg</foto>
+        <descripcion>Descripción 5</descripcion>
     </planta>
     <planta>
         <codigo>6</codigo>
-        <nombre>Aloe Vera</nombre>
-        <foto>aloe_vera.jpg</foto>
-        <descripcion>Planta medicinal con hojas carnosas.</descripcion>
+        <nombre>Planta6</nombre>
+        <foto>foto6.jpg</foto>
+        <descripcion>Descripción 6</descripcion>
     </planta>
     <planta>
         <codigo>7</codigo>
-        <nombre>Menta</nombre>
-        <foto>menta.jpg</foto>
-        <descripcion>Planta aromática usada en infusiones.</descripcion>
+        <nombre>Planta7</nombre>
+        <foto>foto7.jpg</foto>
+        <descripcion>Descripción 7</descripcion>
     </planta>
     <planta>
         <codigo>8</codigo>
-        <nombre>Bambú</nombre>
-        <foto>bambu.jpg</foto>
-        <descripcion>Planta de tallo alto y hueco, de rápido crecimiento.</descripcion>
+        <nombre>Planta8</nombre>
+        <foto>foto8.jpg</foto>
+        <descripcion>Descripción 8</descripcion>
     </planta>
     <planta>
         <codigo>9</codigo>
-        <nombre>Orquídea</nombre>
-        <foto>orquidea.jpg</foto>
-        <descripcion>Flor exótica de gran valor ornamental.</descripcion>
+        <nombre>Planta9</nombre>
+        <foto>foto9.jpg</foto>
+        <descripcion>Descripción 9</descripcion>
     </planta>
     <planta>
         <codigo>10</codigo>
-        <nombre>Hortensia</nombre>
-        <foto>hortensia.jpg</foto>
-        <descripcion>Planta de flores grandes y coloridas.</descripcion>
+        <nombre>Planta10</nombre>
+        <foto>foto10.jpg</foto>
+        <descripcion>Descripción 10</descripcion>
     </planta>
     <planta>
         <codigo>11</codigo>
-        <nombre>Palmera</nombre>
-        <foto>palmera.jpg</foto>
-        <descripcion>Árbol tropical con hojas largas en forma de abanico.</descripcion>
+        <nombre>Planta11</nombre>
+        <foto>foto11.jpg</foto>
+        <descripcion>Descripción 11</descripcion>
     </planta>
     <planta>
         <codigo>12</codigo>
-        <nombre>Clavel</nombre>
-        <foto>clavel.jpg</foto>
-        <descripcion>Flor de colores vivos y aroma agradable.</descripcion>
+        <nombre>Planta12</nombre>
+        <foto>foto12.jpg</foto>
+        <descripcion>Descripción 12</descripcion>
     </planta>
     <planta>
         <codigo>13</codigo>
-        <nombre>Jacinto</nombre>
-        <foto>jacinto.jpg</foto>
-        <descripcion>Planta bulbosa de flores perfumadas.</descripcion>
+        <nombre>Planta13</nombre>
+        <foto>foto13.jpg</foto>
+        <descripcion>Descripción 13</descripcion>
     </planta>
     <planta>
         <codigo>14</codigo>
-        <nombre>Petunia</nombre>
-        <foto>petunia.jpg</foto>
-        <descripcion>Flor de jardín muy colorida.</descripcion>
+        <nombre>Planta14</nombre>
+        <foto>foto14.jpg</foto>
+        <descripcion>Descripción 14</descripcion>
     </planta>
     <planta>
         <codigo>15</codigo>
-        <nombre>Begonia</nombre>
-        <foto>begonia.jpg</foto>
-        <descripcion>Planta ornamental con hojas decorativas.</descripcion>
+        <nombre>Planta15</nombre>
+        <foto>foto15.jpg</foto>
+        <descripcion>Descripción 15</descripcion>
     </planta>
     <planta>
         <codigo>16</codigo>
-        <nombre>Poto</nombre>
-        <foto>poto.jpg</foto>
-        <descripcion>Planta colgante de interior muy resistente.</descripcion>
+        <nombre>Planta16</nombre>
+        <foto>foto16.jpg</foto>
+        <descripcion>Descripción 16</descripcion>
     </planta>
     <planta>
         <codigo>17</codigo>
-        <nombre>Crisantemo</nombre>
-        <foto>crisantemo.jpg</foto>
-        <descripcion>Flor típica de otoño en muchos colores.</descripcion>
+        <nombre>Planta17</nombre>
+        <foto>foto17.jpg</foto>
+        <descripcion>Descripción 17</descripcion>
     </planta>
     <planta>
         <codigo>18</codigo>
-        <nombre>Romero</nombre>
-        <foto>romero.jpg</foto>
-        <descripcion>Planta aromática usada en la cocina mediterránea.</descripcion>
+        <nombre>Planta18</nombre>
+        <foto>foto18.jpg</foto>
+        <descripcion>Descripción 18</descripcion>
     </planta>
     <planta>
         <codigo>19</codigo>
-        <nombre>Ficus</nombre>
-        <foto>ficus.jpg</foto>
-        <descripcion>Árbol o arbusto de interior muy popular.</descripcion>
+        <nombre>Planta19</nombre>
+        <foto>foto19.jpg</foto>
+        <descripcion>Descripción 19</descripcion>
     </planta>
     <planta>
         <codigo>20</codigo>
-        <nombre>Jazmín</nombre>
-        <foto>jazmin.jpg</foto>
-        <descripcion>Planta trepadora de flores fragantes.</descripcion>
-    </planta>
-    <planta>
-        <codigo>85</codigo>
-        <nombre>Geranio</nombre>
-        <foto/>
-        <descripcion>Verde y multiples colores</descripcion>
-    </planta>
-    <planta>
-        <codigo>42082</codigo>
-        <nombre>Villarious Maximos</nombre>
-        <foto/>
-        <descripcion>Esta planta es autoctona de la peninsula iberica, su principal y útil caracteristica es, eliminar y matar plantas no autoctonas de su habitat.</descripcion>
+        <nombre>Planta20</nombre>
+        <foto>foto20.jpg</foto>
+        <descripcion>Descripción 20</descripcion>
     </planta>
 </plantas>

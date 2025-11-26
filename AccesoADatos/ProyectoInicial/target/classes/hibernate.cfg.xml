@@ -1,0 +1,23 @@
+ <hibernate-configuration>
+    <session-factory>
+
+        <!-- Datos de conexión -->
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/hibernate_db</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">cfgs</property>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+
+        <!-- Dialecto -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Crear tablas automáticamente -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Mostrar SQL -->
+        <property name="show_sql">true</property>
+
+        <!-- Registrar clases mapeadas -->
+        <mapping class="hibernate.Persona"/>
+
+    </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,7 @@
+package jugueteria;
+
+public class Zona {
+	int idZona;
+	String nombre, descripcion;
+	
+}

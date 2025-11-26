@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<plantas>
+    <planta>
+        <codigo>1</codigo>
+        <nombre>Planta1</nombre>
+        <foto>foto1.jpg</foto>
+        <descripcion>Descripción 1</descripcion>
+    </planta>
+    <planta>
+        <codigo>2</codigo>
+        <nombre>Planta2</nombre>
+        <foto>foto2.jpg</foto>
+        <descripcion>Descripción 2</descripcion>
+    </planta>
+    <planta>
+        <codigo>3</codigo>
+        <nombre>Planta3</nombre>
+        <foto>foto3.jpg</foto>
+        <descripcion>Descripción 3</descripcion>
+    </planta>
+    <planta>
+        <codigo>4</codigo>
+        <nombre>Planta4</nombre>
+        <foto>foto4.jpg</foto>
+        <descripcion>Descripción 4</descripcion>
+    </planta>
+    <planta>
+        <codigo>5</codigo>
+        <nombre>Planta5</nombre>
+        <foto>foto5.jpg</foto>
+        <descripcion>Descripción 5</descripcion>
+    </planta>
+    <planta>
+        <codigo>6</codigo>
+        <nombre>Planta6</nombre>
+        <foto>foto6.jpg</foto>
+        <descripcion>Descripción 6</descripcion>
+    </planta>
+    <planta>
+        <codigo>7</codigo>
+        <nombre>Planta7</nombre>
+        <foto>foto7.jpg</foto>
+        <descripcion>Descripción 7</descripcion>
+    </planta>
+    <planta>
+        <codigo>8</codigo>
+        <nombre>Planta8</nombre>
+        <foto>foto8.jpg</foto>
+        <descripcion>Descripción 8</descripcion>
+    </planta>
+    <planta>
+        <codigo>9</codigo>
+        <nombre>Planta9</nombre>
+        <foto>foto9.jpg</foto>
+        <descripcion>Descripción 9</descripcion>
+    </planta>
+    <planta>
+        <codigo>10</codigo>
+        <nombre>Planta10</nombre>
+        <foto>foto10.jpg</foto>
+        <descripcion>Descripción 10</descripcion>
+    </planta>
+    <planta>
+        <codigo>11</codigo>
+        <nombre>Planta11</nombre>
+        <foto>foto11.jpg</foto>
+        <descripcion>Descripción 11</descripcion>
+    </planta>
+    <planta>
+        <codigo>12</codigo>
+        <nombre>Planta12</nombre>
+        <foto>foto12.jpg</foto>
+        <descripcion>Descripción 12</descripcion>
+    </planta>
+    <planta>
+        <codigo>13</codigo>
+        <nombre>Planta13</nombre>
+        <foto>foto13.jpg</foto>
+        <descripcion>Descripción 13</descripcion>
+    </planta>
+    <planta>
+        <codigo>14</codigo>
+        <nombre>Planta14</nombre>
+        <foto>foto14.jpg</foto>
+        <descripcion>Descripción 14</descripcion>
+    </planta>
+    <planta>
+        <codigo>15</codigo>
+        <nombre>Planta15</nombre>
+        <foto>foto15.jpg</foto>
+        <descripcion>Descripción 15</descripcion>
+    </planta>
+    <planta>
+        <codigo>16</codigo>
+        <nombre>Planta16</nombre>
+        <foto>foto16.jpg</foto>
+        <descripcion>Descripción 16</descripcion>
+    </planta>
+    <planta>
+        <codigo>17</codigo>
+        <nombre>Planta17</nombre>
+        <foto>foto17.jpg</foto>
+        <descripcion>Descripción 17</descripcion>
+    </planta>
+    <planta>
+        <codigo>18</codigo>
+        <nombre>Planta18</nombre>
+        <foto>foto18.jpg</foto>
+        <descripcion>Descripción 18</descripcion>
+    </planta>
+    <planta>
+        <codigo>19</codigo>
+        <nombre>Planta19</nombre>
+        <foto>foto19.jpg</foto>
+        <descripcion>Descripción 19</descripcion>
+    </planta>
+    <planta>
+        <codigo>20</codigo>
+        <nombre>Planta20</nombre>
+        <foto>foto20.jpg</foto>
+        <descripcion>Descripción 20</descripcion>
+    </planta>
+</plantas>

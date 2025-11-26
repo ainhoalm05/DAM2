@@ -1,0 +1,10 @@
+Número Ticket: 1
+——————————————//———————————------------------------
+Empleado que ha atendido: 1452
+Nombre del empleado: Teresa
+Fecha: 2025-11-15T21:49:23.620052100
+CodigoProducto Cantidad PrecioUnitario
+85 100 4.0
+20 2 5.0
+——————————————//———————————------------------------
+Total: 410,00 €

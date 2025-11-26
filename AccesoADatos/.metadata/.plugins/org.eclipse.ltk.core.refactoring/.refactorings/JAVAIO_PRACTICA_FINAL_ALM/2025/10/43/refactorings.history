@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;PracticaFinal.plantas&apos; to &apos;planta&apos;&#x0D;&#x0A;- Original project: &apos;JAVAIO_PRACTICA_FINAL_ALM&apos;&#x0D;&#x0A;- Original element: &apos;PracticaFinal.plantas&apos;&#x0D;&#x0A;- Renamed element: &apos;PracticaFinal.planta&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;plantas&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;PracticaFinal{plantas.java[plantas" matchStrategy="1" name="planta" qualified="false" references="true" similarDeclarations="false" stamp="1761122360213" textual="false" version="1.0"/>
+</session>

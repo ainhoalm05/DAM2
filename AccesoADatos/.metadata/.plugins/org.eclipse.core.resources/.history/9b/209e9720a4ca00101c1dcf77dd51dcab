@@ -1,0 +1,12 @@
+package jugueteria;
+
+public class Main {
+
+	public static void main(String[] args) {
+		String url = "jdbc:mysql://localhost:3306/mydb";
+		String usuario = "root";
+		String password = "cfgs";
+
+	}
+
+}

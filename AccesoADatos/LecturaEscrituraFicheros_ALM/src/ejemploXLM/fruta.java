@@ -48,8 +48,8 @@ public class fruta {
 
 	@Override
 	public String toString() {
-		return "fruta [nombre=" + nombre + ", tipo=" + tipo + ", color=" + color + ", origen=" + origen + ", precio="
-				+ precio + ", temporada=" + temporada + ", nutrientes=" + nutrientes + "]";
+		return "Fruta: \n Nombre=" + nombre + "\n Tipo=" + tipo + "\n Color=" + color + "\n Origen=" + origen + "\n Precio="
+				+ precio + "\n Temporada=" + temporada + "\n Nutrientes=" + nutrientes ;
 	}
 
 

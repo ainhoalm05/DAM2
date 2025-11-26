@@ -72,7 +72,7 @@ public class EjemploFrutas {
 	            }
 
 	        } catch (Exception e) {
-	            System.out.println("⚠️ Error al procesar el XML:");
+	            System.out.println("Error al procesar el XML:");
 	            e.printStackTrace();
 	        }
 	    }

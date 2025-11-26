@@ -1,0 +1,9 @@
+package hibernate;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "personas")
+public class Persona {
+
+}

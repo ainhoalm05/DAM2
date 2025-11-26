@@ -1,0 +1,14 @@
+package jugueteria;
+
+import java.sql.Date;
+
+public class Venta {
+	int idVenta, idJuguete, idEmpleado, idStand, idZona;
+	Date Fecha;
+	float precioTotal;
+	enum tipoPagos{
+		Efectivo,
+		Tarjeta
+	}
+	tipoPagos tipoPagp;
+}

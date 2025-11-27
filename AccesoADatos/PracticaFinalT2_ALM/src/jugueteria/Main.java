@@ -8,6 +8,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
+/*
+ * TO DO:
+ * - Quitar todos los emojis
+ * - Revisar funcion de modificar y borrar juguete
+ * - Poner en la BDD el borrado en cascada en juguete 
+ */
+
 public class Main {
 	static Scanner entrada = new Scanner(System.in);
 
@@ -211,7 +218,7 @@ public class Main {
 				psJuguete.close();
 				
 				// --- PASO 2: INSERTAR STOCK EN LA UBICACIÓN ESPECÍFICA ---
-				String consultaStock = "INSERT INTO stock (STAND_idStand, STAND_ZONA_idzona, JUGUETE_idJuguete, CANTIDAD) VALUES (?, ?, ?, ?)";
+				String consultaStock = "INSERT INTO stock (STAND_idStand, STAND_ZONA_idzona, JUGUETE_idJuguete, CantidadDisponibl) VALUES (?, ?, ?, ?)";
 				PreparedStatement psStock = con.prepareStatement(consultaStock);
 				
 				psStock.setInt(1, idStand);
@@ -240,6 +247,169 @@ public class Main {
 			System.err.println("ERROR TRANSACCIONAL (JUGUETE + STOCK): " + e.getMessage());
 			System.err.println("Error al cerrar conexión: " + e.getMessage());
 			
+		}
+	}
+	
+	
+	private static void modificarJuguete() {
+		Connection con = ConnectionDB();
+		if (con == null) return;
+		
+		System.out.println("\n--- 2) MODIFICAR JUGUETE ---");
+
+		try {
+			// 1. Mostrar juguetes y pedir ID
+			mostrarTodosLosJuguetes(con);
+			System.out.print("\nIntroduce el ID del juguete a modificar: ");
+			int idJuguete = Integer.parseInt(entrada.nextLine());
+
+			// 2. Buscar datos actuales
+			String selectSQL = "SELECT Nombre, Descripcion, Precio, Stock, Categorida FROM juguete WHERE idJuguete = ?";
+			PreparedStatement psSelect = con.prepareStatement(selectSQL);
+			psSelect.setInt(1, idJuguete);
+			ResultSet rs = psSelect.executeQuery();
+
+			if (!rs.next()) {
+				System.out.println("⚠️ No se encontró ningún juguete con ID: " + idJuguete);
+				rs.close();
+				psSelect.close();
+				return;
+			}
+
+			// Guardar datos actuales
+			String currentNombre = rs.getString("Nombre");
+			String currentDescripcion = rs.getString("Descripcion");
+			float currentPrecio = rs.getFloat("Precio");
+			int currentStock = rs.getInt("Stock"); 
+			String currentCategoria = rs.getString("Categorida");
+			rs.close();
+			psSelect.close();
+			
+			System.out.println("\nDatos actuales del juguete ID " + idJuguete + ":");
+			System.out.println(" - Nombre: " + currentNombre);
+			System.out.println(" - Descripción: " + currentDescripcion);
+			System.out.printf(" - Precio: %.2f\n", currentPrecio);
+			System.out.println(" - Stock (No modificable directamente): " + currentStock);
+			System.out.println(" - Categoría: " + currentCategoria);
+			System.out.println("\nIntroduce el nuevo valor o **deja vacío** para mantener el actual.");
+
+
+			// 3. Pedir nuevos datos (o dejar vacío para mantener el actual)
+			
+			// Nombre
+			System.out.print("Nuevo Nombre [" + currentNombre + "]: ");
+			String newNombre = entrada.nextLine().trim();
+			if (newNombre.isEmpty()) newNombre = currentNombre;
+
+			// Descripcion
+			System.out.print("Nueva Descripción [" + currentDescripcion + "]: ");
+			String newDescripcion = entrada.nextLine().trim();
+			if (newDescripcion.isEmpty()) newDescripcion = currentDescripcion;
+			
+			// Precio
+			float newPrecio = currentPrecio;
+			System.out.print("Nuevo Precio [" + String.format("%.2f", currentPrecio) + "]: ");
+			String precioStr = entrada.nextLine().trim();
+			if (!precioStr.isEmpty()) {
+				// FIX: Controlar NumberFormatException si el usuario introduce algo no numérico
+				newPrecio = Float.parseFloat(precioStr.replace(',', '.')); // Soporta coma decimal
+			}
+
+			// Categoria
+			System.out.print("Nueva Categoría (Pelotas, Muñecas, Vehiculos) [" + currentCategoria + "]: ");
+			String newCategoria = entrada.nextLine().trim();
+			if (newCategoria.isEmpty()) newCategoria = currentCategoria;
+
+
+			// 4. Ejecutar UPDATE
+			String updateSQL = "UPDATE juguete SET Nombre=?, Descripcion=?, Precio=?, Categorida=? WHERE idJuguete=?";
+			PreparedStatement psUpdate = con.prepareStatement(updateSQL);
+			
+			psUpdate.setString(1, newNombre);
+			psUpdate.setString(2, newDescripcion);
+			psUpdate.setFloat(3, newPrecio);
+			psUpdate.setString(4, newCategoria);
+			psUpdate.setInt(5, idJuguete);
+			
+			int filasModificadas = psUpdate.executeUpdate();
+			psUpdate.close();
+			
+			if (filasModificadas > 0) {
+				System.out.println("✅ Juguete ID " + idJuguete + " modificado correctamente.");
+				mostrarTodosLosJuguetes(con);
+			} else {
+				System.out.println("⚠️ No se pudo modificar el juguete (posiblemente no se cambió ningún campo o no existe).");
+			}
+
+
+		} catch (NumberFormatException e) {
+			System.err.println("❌ Error de formato: El ID o el Precio deben ser números válidos.");
+		} catch (SQLException e) {
+			System.err.println("❌ Error SQL al modificar el juguete: " + e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("❌ Error inesperado: " + e.getMessage());
+		} finally {
+			try {
+				if (con != null) con.close();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar conexión: " + e.getMessage());
+			}
+		}
+	}
+	
+	
+	private static void eliminarJuguete() {
+		Connection con = ConnectionDB();
+		if (con == null) return;
+		
+		System.out.println("\n--- 3) ELIMINAR JUGUETE ---");
+
+		try {
+			// 1. Mostrar juguetes y pedir ID
+			mostrarTodosLosJuguetes(con);
+			System.out.print("\nIntroduce el ID del juguete a eliminar: ");
+			int idJuguete = Integer.parseInt(entrada.nextLine());
+
+			// 2. Confirmación (Opcional, pero buena práctica)
+			System.out.print("¿Estás seguro de que quieres eliminar el juguete ID " + idJuguete + "? (s/n): ");
+			String confirmacion = entrada.nextLine().trim().toLowerCase();
+			
+			if (!confirmacion.equals("s")) {
+				System.out.println("Eliminación cancelada.");
+				return;
+			}
+
+			// 3. Ejecutar DELETE
+			// La eliminación en 'juguete' debería disparar la eliminación en 'stock' por CASCADE.
+			String deleteSQL = "DELETE FROM juguete WHERE idJuguete = ?";
+			PreparedStatement psDelete = con.prepareStatement(deleteSQL);
+			
+			psDelete.setInt(1, idJuguete);
+			
+			int filasEliminadas = psDelete.executeUpdate();
+			psDelete.close();
+			
+			if (filasEliminadas > 0) {
+				System.out.println("Juguete ID " + idJuguete + " eliminado correctamente. (Se eliminó el stock asociado).");
+				// 4. Mostrar la tabla actualizada
+				mostrarTodosLosJuguetes(con);
+			} else {
+				System.out.println("⚠️ No se encontró ningún juguete con ID: " + idJuguete + " para eliminar.");
+			}
+
+		} catch (NumberFormatException e) {
+			System.err.println("❌ Error de formato: El ID debe ser un número válido.");
+		} catch (SQLException e) {
+			System.err.println("❌ Error SQL al eliminar el juguete: " + e.getMessage());
+		} catch (Exception e) {
+			System.err.println("❌ Error inesperado: " + e.getMessage());
+		} finally {
+			try {
+				if (con != null) con.close();
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar conexión: " + e.getMessage());
+			}
 		}
 	}
 	
@@ -282,7 +452,11 @@ public class Main {
 		 registrarJuguete();
 		 break;
 	 case "2":
+		 modificarJuguete();
+		 break;
 	 case "3":
+		 eliminarJuguete();
+		 break;
 	 case "4":
 	 case "5":
 	 case "6":

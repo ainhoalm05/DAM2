@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Main {
 	static Scanner entrada = new Scanner(System.in);
 
-	public static  Connection ConnectionDB() {
+	public static Connection ConnectionDB() {
 		String url = "jdbc:mysql://localhost:3306/practica_final_t2";
 		String usuario = "root";
 		String password = "cfgs";
@@ -19,60 +19,154 @@ public class Main {
 		Connection connection=null;
 		
 		try {
-			// Cargar driver de BDD
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			// Cargar driver de BDD (Asegúrate de tener el JAR de MySQL Connector/J en el classpath de tu proyecto)
+			Class.forName("com.mysql.cj.jdbc.Driver"); 
 			
 			//Crear conexion
 			connection = DriverManager.getConnection(url,usuario,password);
 			System.out.println("Nos hemos conectado a la BDD");
 		}catch(Exception e) {
+			System.err.println("❌ ERROR DE CONEXIÓN: No se ha podido conectar a la BDD.");
 			e.printStackTrace();
 		}
 		return connection;
 	}		
 	
-	// -------------JUGUETES------------//
+	// ------------INICIALIZAR------------ //
+	
+	public static void inicializarZonasYStands() {
+		Connection con = ConnectionDB();
+		if (con == null) return;
+		
+		try {
+			// Comprobar si ya hay zonas
+			Statement st = con.createStatement();
+			ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM zona");
+			rs.next();
+			if (rs.getInt(1) > 0) {
+				return;
+			}
+			
+			System.out.println("⚙️ Inicializando Zonas y Stands...");
+			con.setAutoCommit(false); // Iniciar transacción
+			
+			// 1. Insertar Zonas
+			PreparedStatement consultaZona = con.prepareStatement("INSERT INTO zona (idzona, Nombre, Descripcion) VALUES (?, ?, ?)");
+			consultaZona.setInt(1, 1); consultaZona.setString(2, "Zona Pelotas"); consultaZona.setString(3, "Zona de juegos con pelotas"); consultaZona.executeUpdate();
+			consultaZona.setInt(1, 2); consultaZona.setString(2, "Zona Muñecas"); consultaZona.setString(3, "Área de exposición de muñecas"); consultaZona.executeUpdate();
+			consultaZona.setInt(1, 3); consultaZona.setString(2, "Zona Vehículos"); consultaZona.setString(3, "Pista de pruebas de vehículos"); consultaZona.executeUpdate();
+			consultaZona.close();
+			
+			// 2. Insertar Stands (vinculados a sus zonas, uno por zona)
+			PreparedStatement consultaStand = con.prepareStatement("INSERT INTO stand (idStand, ZONA_idzona, Nombre, Descripcion) VALUES (?, ?, ?, ?)");
+			consultaStand.setInt(1, 1); consultaStand.setInt(2, 1); consultaStand.setString(3, "Stand Principal P"); consultaStand.setString(4, "Estantería de entrada"); consultaStand.executeUpdate();
+			consultaStand.setInt(1, 2); consultaStand.setInt(2, 2); consultaStand.setString(3, "Stand Vitrina M"); consultaStand.setString(4, "Vitrina de cristal"); consultaStand.executeUpdate();
+			consultaStand.setInt(1, 3); consultaStand.setInt(2, 3); consultaStand.setString(3, "Stand Central V"); consultaStand.setString(4, "Expositor central"); consultaStand.executeUpdate();
+			consultaStand.close();
+			
+			con.commit();
+			System.out.println("✅ Zonas y Stands inicializados correctamente.");
+			
+		} catch (SQLException e) {
+			System.err.println("❌ Error SQL al inicializar Zonas y Stands: " + e.getMessage());
+			// Deshacer si falla
+			try { if (con != null) con.rollback(); } catch (SQLException rollbackEx) {} 
+		} finally {
+			try { 
+				// Limpieza: Cerrar conexión y resetear AutoCommit
+				if (con != null) { 
+					con.setAutoCommit(true);
+					con.close(); 
+				} 
+			} catch (SQLException e) {
+				System.err.println("Error al cerrar conexión: " + e.getMessage());
+			}
+		}
+	}
+	
+	// ----------------- LISTAR ----------------- //
+	
+	/**
+	 * Muestra los Stands y las Zonas disponibles al usuario.
+	 * @param con Conexión a la base de datos.
+	 */
+	private static void listarZonasYStands(Connection con) {
+		System.out.println("\n--- UBICACIONES DISPONIBLES ---");
+		
+		try {
+			// Listar Zonas
+			Statement stZona = con.createStatement();
+			ResultSet rsZona = stZona.executeQuery("SELECT idzona, Nombre FROM zona");
+			System.out.println("\nZONAS (id | Nombre):");
+			while (rsZona.next()) {
+				System.out.printf("  - %d | %s\n", rsZona.getInt("idzona"), rsZona.getString("Nombre"));
+			}
+			rsZona.close();
+			stZona.close();
+			
+			// Listar Stands
+			Statement stStand = con.createStatement();
+			ResultSet rsStand = stStand.executeQuery("SELECT idStand, ZONA_idzona, Nombre FROM stand");
+			System.out.println("\nSTANDS (id | Zona ID | Nombre):");
+			while (rsStand.next()) {
+				System.out.printf("  - %d | %d | %s\n", rsStand.getInt("idStand"), rsStand.getInt("ZONA_idzona"), rsStand.getString("Nombre"));
+			}
+			rsStand.close();
+			stStand.close();
+			
+		} catch (SQLException e) {
+			System.err.println("❌ Error al listar zonas/stands: " + e.getMessage());
+		}
+	}
 	
 	private static void mostrarTodosLosJuguetes(Connection con) {
-		String sql = "SELECT idJuguete, Nombre, Descripcion, Precio, Stock, Categorida FROM juguete;"; 
+		// Usamos Stock y Categorida según la tabla del usuario
+		String consulta = "SELECT idJuguete, Nombre, Descripcion, Precio, Stock, Categorida FROM juguete ORDER BY idJuguete DESC"; 
 		try (Statement st = con.createStatement();
-			 ResultSet rs = st.executeQuery(sql)) {
+				ResultSet rs = st.executeQuery(consulta)) {
 			
-			System.out.println("\n=======================================================");
-			System.out.println("           LISTADO COMPLETO DE JUGUETES");
-			System.out.println("=======================================================");
-			System.out.printf("%-10s %-20s %-30s %-10s %-10s\n", "ID", "NOMBRE", "PRECIO", "STOCK", "CATEGORIA");
-			System.out.println("-------------------------------------------------------------------------------------------------");
+			System.out.println("\n======================================================================================================================");
+			System.out.println("                                      LISTADO COMPLETO DE JUGUETES");
+			System.out.println("======================================================================================================================");
+			// Añadida DESCRIPCIÓN al encabezado
+			System.out.printf("%-5s %-20s %-40s %-10s %-10s %-15s\n", "ID", "NOMBRE", "DESCRIPCIÓN", "PRECIO", "STOCK", "CATEGORIA");
+			System.out.println("----------------------------------------------------------------------------------------------------------------------");
 
 			boolean encontrado = false;
 			while (rs.next()) {
 				encontrado = true;
 				System.out.printf("%-5d %-20s %-40s %-10.2f %-10d %-15s\n",
-					rs.getInt("idJuguete"), 
-					rs.getString("Nombre"),
-					rs.getString("Descripcion"),
-					rs.getFloat("Precio"), 
-					rs.getInt("Stock"), 
-					rs.getString("Categorida")
-				);
+						rs.getInt("idJuguete"), 
+						rs.getString("Nombre"),
+						rs.getString("Descripcion"),
+						rs.getFloat("Precio"), 
+						rs.getInt("Stock"), 
+						rs.getString("Categorida")
+						);
 			}
 			
 			if (!encontrado) {
 				System.out.println("No hay juguetes registrados en la base de datos.");
 			}
-			System.out.println("=======================================================");
+			System.out.println("======================================================================================================================");
 			
 		} catch (SQLException e) {
-			System.err.println("Error SQL al listar juguetes: " + e.getMessage());
+			System.err.println("❌ Error SQL al listar juguetes: " + e.getMessage());
 		}
 	}
 	
+	// -------------JUGUETES------------ //
+		
 	private static void registrarJuguete() {
 		Connection con = ConnectionDB();
-		if (con == null) {
-			return;
-		}
+		if (con == null) return;
+		
+		int idJugueteGenerado = -1; // FIX: Declaración de variable para el ID generado
+		
+		System.out.println("\n--- 1) REGISTRAR JUGUETE ---");
+
 		try {
+			// 1. CAPTURA DE DATOS DEL JUGUETE
 			System.out.print("Nombre: ");
 			String nombre = entrada.nextLine();
 			System.out.print("Descripcion: ");
@@ -84,37 +178,77 @@ public class Main {
 			System.out.print("Categoría (Pelotas, Muñecas, Vehiculos): ");
 			String categoriaStr = entrada.nextLine();
 			
-			String consulta = "INSERT INTO juguete (Nombre, Descripcion, Precio, Stock, Categorida)VALUES (?, ?, ?, ?, ?);" ;
-						
-			PreparedStatement sentencia = con.prepareStatement(consulta);
-			sentencia.setString(1, nombre);
-			sentencia.setString(2, descripcion);
-			sentencia.setFloat(3, precio);
-			sentencia.setInt(4, stock);
-			sentencia.setString(5, categoriaStr.valueOf(categoriaStr).toString());
+			// 2. CAPTURA DE UBICACIÓN (Stand y Zona)
+			listarZonasYStands(con); // Mostrar opciones
+			System.out.print("ID de la Zona donde se ubicará: ");
+			int idZona = Integer.parseInt(entrada.nextLine());
+			System.out.print("ID del Stand donde se ubicará: ");
+			int idStand = Integer.parseInt(entrada.nextLine());
+			
+			// INICIAR TRANSACCIÓN
+			con.setAutoCommit(false); 
+			
+			// --- PASO 1: INSERTAR JUGUETE (Obteniendo el ID generado) ---
+			String consultaJuguete = "INSERT INTO juguete (Nombre, Descripcion, Precio, Stock, Categorida) VALUES (?, ?, ?, ?, ?)";
+			// FIX: Usar Statement.RETURN_GENERATED_KEYS para obtener el ID
+			PreparedStatement psJuguete = con.prepareStatement(consultaJuguete, Statement.RETURN_GENERATED_KEYS);
+			
+			psJuguete.setString(1, nombre);
+			psJuguete.setString(2, descripcion);
+			psJuguete.setFloat(3, precio);
+			psJuguete.setInt(4, stock); 
+			psJuguete.setString(5, categoriaStr.valueOf(categoriaStr).toString());
 		
-			int filasAfectadas = sentencia.executeUpdate();
+			int filasAfectadas = psJuguete.executeUpdate();
 			
 			if(filasAfectadas > 0) {
-				System.out.println("Se ha añadido el juguete: " + nombre);
+				// Obtener el ID generado
+				ResultSet rsKeys = psJuguete.getGeneratedKeys();
+				if (rsKeys.next()) {
+					idJugueteGenerado = rsKeys.getInt(1);
+				}
+				rsKeys.close();
+				psJuguete.close();
 				
-				// 2. MOSTRAR LA TABLA COMPLETA DE JUGUETES
-				mostrarTodosLosJuguetes(con);
+				// --- PASO 2: INSERTAR STOCK EN LA UBICACIÓN ESPECÍFICA ---
+				String consultaStock = "INSERT INTO stock (STAND_idStand, STAND_ZONA_idzona, JUGUETE_idJuguete, CANTIDAD) VALUES (?, ?, ?, ?)";
+				PreparedStatement psStock = con.prepareStatement(consultaStock);
+				
+				psStock.setInt(1, idStand);
+				psStock.setInt(2, idZona);
+				psStock.setInt(3, idJugueteGenerado); // Usamos el ID generado
+				psStock.setInt(4, stock);
+				
+				int filasStock = psStock.executeUpdate();
+				psStock.close();
+				
+				if (filasStock > 0) {
+					con.commit(); // Confirmar ambas inserciones
+					System.out.println("Juguete '" + nombre + "' (ID: " + idJugueteGenerado + ") registrado y stock asignado al Stand " + idStand + ", Zona " + idZona + ".");
+					
+					// 3. MOSTRAR LA TABLA COMPLETA DE JUGUETES
+					mostrarTodosLosJuguetes(con);
+				} else {
+					con.rollback(); // Deshacer si la inserción de stock falla
+					System.out.println("ERROR: Se registró el juguete, pero falló la asignación de stock. Transacción revertida.");
+				}
 			} else {
 				System.out.println("No se pudo añadir el juguete.");
 			}
+					
+		} catch (SQLException e) {
+			System.err.println("ERROR TRANSACCIONAL (JUGUETE + STOCK): " + e.getMessage());
+			System.err.println("Error al cerrar conexión: " + e.getMessage());
 			
-			sentencia.close();
-			
-		}catch (Exception e) {
-			e.getStackTrace();
 		}
-		
 	}
 	
 	public static void main(String[] args) {
-	ConnectionDB();
 	
+	 ConnectionDB();
+	
+	 // FIX: Llamar a la inicialización al comienzo del programa
+	 inicializarZonasYStands();
 	 
 	 String opcion;
 	 
@@ -148,46 +282,20 @@ public class Main {
 		 registrarJuguete();
 		 break;
 	 case "2":
-			 
-		break;
 	 case "3":
-		 
-		 break;
 	 case "4":
-		 
-		 break;
 	 case "5":
-		 
-		 break;
 	 case "6":
-		 
-		 break;
 	 case "7":
-		 
-		 break;
 	 case "8":
-		 
-		 break;
 	 case "9":
-		 
-		 break;
 	 case "10":
-		 
-		 break;
 	 case "11":
-		 
-		 break;
 	 case "12":
-		 
-		 break;
 	 case "13":
-		 
-		 break;
 	 case "14":
-		 
-		 break;
 	 case "15":
-		 
+		 System.out.println("Función pendiente de implementar.");
 		 break;
 	 case "16":
 		 System.out.println("Cerrando aplicacion....");
@@ -196,7 +304,7 @@ public class Main {
 		 System.out.println("Opción inválida.");
 		 
 	 }
-	 }while(!opcion.equals("0"));
+	 }while(!opcion.equals("16"));
 	 
 	 
 }

@@ -33,7 +33,7 @@ public class Main {
 			connection = DriverManager.getConnection(url,usuario,password);
 			System.out.println("Nos hemos conectado a la BDD");
 		}catch(Exception e) {
-			System.err.println("❌ ERROR DE CONEXIÓN: No se ha podido conectar a la BDD.");
+			System.err.println("ERROR DE CONEXIÓN: No se ha podido conectar a la BDD.");
 			e.printStackTrace();
 		}
 		return connection;
@@ -55,7 +55,7 @@ public class Main {
 			}
 			
 			System.out.println("⚙️ Inicializando Zonas y Stands...");
-			con.setAutoCommit(false); // Iniciar transacción
+			 // Iniciar transacción
 			
 			// 1. Insertar Zonas
 			PreparedStatement consultaZona = con.prepareStatement("INSERT INTO zona (idzona, Nombre, Descripcion) VALUES (?, ?, ?)");
@@ -71,25 +71,14 @@ public class Main {
 			consultaStand.setInt(1, 3); consultaStand.setInt(2, 3); consultaStand.setString(3, "Stand Central V"); consultaStand.setString(4, "Expositor central"); consultaStand.executeUpdate();
 			consultaStand.close();
 			
-			con.commit();
 			System.out.println("✅ Zonas y Stands inicializados correctamente.");
 			
 		} catch (SQLException e) {
 			System.err.println("❌ Error SQL al inicializar Zonas y Stands: " + e.getMessage());
 			// Deshacer si falla
-			try { if (con != null) con.rollback(); } catch (SQLException rollbackEx) {} 
-		} finally {
-			try { 
-				// Limpieza: Cerrar conexión y resetear AutoCommit
-				if (con != null) { 
-					con.setAutoCommit(true);
-					con.close(); 
-				} 
-			} catch (SQLException e) {
-				System.err.println("Error al cerrar conexión: " + e.getMessage());
-			}
 		}
-	}
+		}
+	
 	
 	// ----------------- LISTAR ----------------- //
 	
@@ -162,6 +151,38 @@ public class Main {
 		}
 	}
 	
+	private static void mostrarTodosLosEmpleados(Connection con) {
+	    String consulta = "SELECT idEmpleado, Nombre, Cargo, FechaIngreso, activo FROM empleado ORDER BY idEmpleado DESC"; 
+	    try (Statement st = con.createStatement();
+	            ResultSet rs = st.executeQuery(consulta)) {
+	        
+	        System.out.println("\n=======================================================================================");
+	        System.out.println("                                LISTADO COMPLETO DE EMPLEADOS");
+	        System.out.println("=======================================================================================");
+	        System.out.printf("%-5s %-25s %-15s %-15s %-10s\n", "ID", "NOMBRE", "CARGO", "INGRESO", "ACTIVO");
+	        System.out.println("---------------------------------------------------------------------------------------");
+
+	        boolean encontrado = false;
+	        while (rs.next()) {
+	            encontrado = true;
+	            System.out.printf("%-5d %-25s %-15s %-15s %-10s\n",
+	                    rs.getInt("idEmpleado"), 
+	                    rs.getString("Nombre"),
+	                    rs.getString("Cargo"),
+	                    rs.getDate("FechaIngreso"),
+	                    rs.getBoolean("activo") ? "Sí" : "No"
+	                    );
+	        }
+	        
+	        if (!encontrado) {
+	            System.out.println("No hay empleados registrados en la base de datos.");
+	        }
+	        System.out.println("=======================================================================================");
+	        
+	    } catch (SQLException e) {
+	        System.err.println("Error SQL al listar empleados: " + e.getMessage());
+	    }
+	}
 	// -------------JUGUETES------------ //
 		
 	private static void registrarJuguete() {
@@ -193,7 +214,6 @@ public class Main {
 			int idStand = Integer.parseInt(entrada.nextLine());
 			
 			// INICIAR TRANSACCIÓN
-			con.setAutoCommit(false); 
 			
 			// --- PASO 1: INSERTAR JUGUETE (Obteniendo el ID generado) ---
 			String consultaJuguete = "INSERT INTO juguete (Nombre, Descripcion, Precio, Stock, Categorida) VALUES (?, ?, ?, ?, ?)";
@@ -218,7 +238,7 @@ public class Main {
 				psJuguete.close();
 				
 				// --- PASO 2: INSERTAR STOCK EN LA UBICACIÓN ESPECÍFICA ---
-				String consultaStock = "INSERT INTO stock (STAND_idStand, STAND_ZONA_idzona, JUGUETE_idJuguete, CantidadDisponibl) VALUES (?, ?, ?, ?)";
+				String consultaStock = "INSERT INTO stock (STAND_idStand, STAND_ZONA_idzona, JUGUETE_idJuguete, CantidadDisponible) VALUES (?, ?, ?, ?)";
 				PreparedStatement psStock = con.prepareStatement(consultaStock);
 				
 				psStock.setInt(1, idStand);
@@ -230,7 +250,6 @@ public class Main {
 				psStock.close();
 				
 				if (filasStock > 0) {
-					con.commit(); // Confirmar ambas inserciones
 					System.out.println("Juguete '" + nombre + "' (ID: " + idJugueteGenerado + ") registrado y stock asignado al Stand " + idStand + ", Zona " + idZona + ".");
 					
 					// 3. MOSTRAR LA TABLA COMPLETA DE JUGUETES
@@ -264,13 +283,13 @@ public class Main {
 			int idJuguete = Integer.parseInt(entrada.nextLine());
 
 			// 2. Buscar datos actuales
-			String selectSQL = "SELECT Nombre, Descripcion, Precio, Stock, Categorida FROM juguete WHERE idJuguete = ?";
+			String selectSQL = "SELECT Nombre, Descripcion, Precio, Stock, Categorida FROM juguete WHERE idJuguete = ? and activo = TRUE";
 			PreparedStatement psSelect = con.prepareStatement(selectSQL);
 			psSelect.setInt(1, idJuguete);
 			ResultSet rs = psSelect.executeQuery();
 
 			if (!rs.next()) {
-				System.out.println("⚠️ No se encontró ningún juguete con ID: " + idJuguete);
+				System.out.println("No se encontró o no hay disponible ningún juguete con ID: " + idJuguete);
 				rs.close();
 				psSelect.close();
 				return;
@@ -335,20 +354,20 @@ public class Main {
 			psUpdate.close();
 			
 			if (filasModificadas > 0) {
-				System.out.println("✅ Juguete ID " + idJuguete + " modificado correctamente.");
+				System.out.println("Juguete ID " + idJuguete + " modificado correctamente.");
 				mostrarTodosLosJuguetes(con);
 			} else {
-				System.out.println("⚠️ No se pudo modificar el juguete (posiblemente no se cambió ningún campo o no existe).");
+				System.out.println("No se pudo modificar el juguete (posiblemente no se cambió ningún campo o no existe).");
 			}
 
 
 		} catch (NumberFormatException e) {
-			System.err.println("❌ Error de formato: El ID o el Precio deben ser números válidos.");
+			System.err.println("Error de formato: El ID o el Precio deben ser números válidos.");
 		} catch (SQLException e) {
-			System.err.println("❌ Error SQL al modificar el juguete: " + e.getMessage());
+			System.err.println("Error SQL al modificar el juguete: " + e.getMessage());
 			e.printStackTrace();
 		} catch (Exception e) {
-			System.err.println("❌ Error inesperado: " + e.getMessage());
+			System.err.println("Error inesperado: " + e.getMessage());
 		} finally {
 			try {
 				if (con != null) con.close();
@@ -364,7 +383,11 @@ public class Main {
 		if (con == null) return;
 		
 		System.out.println("\n--- 3) ELIMINAR JUGUETE ---");
-
+		//En mi caso lo que voy a hcer es crear una columna en "juguetes" en la que se marque si esta activo o no
+		//ALTER TABLE juguete ADD activo BIT NOT NULL DEFAULT 1;
+		//ALTER TABLE stock ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
+		//ALTER TABLE zona ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
+		
 		try {
 			// 1. Mostrar juguetes y pedir ID
 			mostrarTodosLosJuguetes(con);
@@ -379,45 +402,131 @@ public class Main {
 				System.out.println("Eliminación cancelada.");
 				return;
 			}
+			
 
-			// 3. Ejecutar DELETE
-			// La eliminación en 'juguete' debería disparar la eliminación en 'stock' por CASCADE.
-			String deleteSQL = "DELETE FROM juguete WHERE idJuguete = ?";
-			PreparedStatement psDelete = con.prepareStatement(deleteSQL);
+			String updateJugueteSQL = "UPDATE juguete SET activo = FALSE WHERE idJuguete = ?"; 
+			int filasJuguete;
+			try (PreparedStatement psUpdateJuguete = con.prepareStatement(updateJugueteSQL)) {
+				psUpdateJuguete.setInt(1, idJuguete);
+				filasJuguete = psUpdateJuguete.executeUpdate();
+			}
+	        System.out.println("✅ Juguete ID " + idJuguete + " desatalogado.");
+
+			// 2.2. Actualizar el STOCK asociado al juguete
+			// NOTA: Asumo que 'stock' tiene una columna 'idJuguete' o 'Juguete_idJuguete'.
+			String updateStockSQL = "UPDATE stock SET activo = FALSE WHERE Juguete_idJuguete = ?"; 
+			try (PreparedStatement psUpdateStock = con.prepareStatement(updateStockSQL)) {
+				psUpdateStock.setInt(1, idJuguete);
+				int filasStock = psUpdateStock.executeUpdate();
+				System.out.println("✅ Registros de stock asociados desatalogados: " + filasStock);
+			}
 			
-			psDelete.setInt(1, idJuguete);
+			// 2.3. Actualizar la ZONA (si la relación es directa)
+	        // NOTA: Ajusta la cláusula WHERE según cómo la tabla 'zona' se relacione con 'idJuguete'.
+	        // Si la relación es indirecta (por ejemplo, a través de 'stock'), esta lógica debe cambiar.
+	        // Asumo aquí una relación directa o que deseas desactivar todas las zonas si se desactiva UN juguete.
+	        // Si no estás seguro de la lógica de 'zona', puedes omitir este paso inicialmente.
+			String updateZonaSQL = "UPDATE zona SET activo = FALSE WHERE idZona IN "
+			                     + "(SELECT idZona FROM stock WHERE Juguete_idJuguete = ?)"; 
+			try (PreparedStatement psUpdateZona = con.prepareStatement(updateZonaSQL)) {
+				psUpdateZona.setInt(1, idJuguete);
+				int filasZona = psUpdateZona.executeUpdate();
+				System.out.println("Zonas afectadas desatalogadas: " + filasZona);
+			}
+
+
+			// --- 3. CONFIRMACIÓN Y CIERRE ---
+			if (filasJuguete > 0) {
 			
-			int filasEliminadas = psDelete.executeUpdate();
-			psDelete.close();
-			
-			if (filasEliminadas > 0) {
-				System.out.println("Juguete ID " + idJuguete + " eliminado correctamente. (Se eliminó el stock asociado).");
-				// 4. Mostrar la tabla actualizada
+				System.out.println("Anulación lógica completada para el juguete ID " + idJuguete + " y sus dependencias.");
 				mostrarTodosLosJuguetes(con);
 			} else {
-				System.out.println("⚠️ No se encontró ningún juguete con ID: " + idJuguete + " para eliminar.");
+				con.rollback(); 
+				System.out.println("No se encontró ningún juguete con ID: " + idJuguete + ". Transacción deshecha.");
 			}
 
 		} catch (NumberFormatException e) {
-			System.err.println("❌ Error de formato: El ID debe ser un número válido.");
+			System.err.println("Error de formato: El ID debe ser un número válido.");
 		} catch (SQLException e) {
-			System.err.println("❌ Error SQL al eliminar el juguete: " + e.getMessage());
+			System.err.println("Error SQL en la transacción: " + e.getMessage());
 		} catch (Exception e) {
-			System.err.println("❌ Error inesperado: " + e.getMessage());
-		} finally {
-			try {
-				if (con != null) con.close();
-			} catch (SQLException e) {
-				System.err.println("Error al cerrar conexión: " + e.getMessage());
-			}
-		}
+			System.err.println("Error inesperado: " + e.getMessage());
+		} 
+
 	}
 	
+	//----------------EMPLEADOS----------------//
+	
+	//Al igual que antes voy a crear una columna "activo"
+	//ALTER TABLE empleado ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
+	
+	private static void registrarEmpleado() {
+	    Connection con = ConnectionDB();
+	    if (con == null) return;
+	    
+	    System.out.println("\n--- 4) REGISTRAR EMPLEADO ---");
+	    
+	    try {
+	        // 1. CAPTURA DE DATOS
+	        System.out.print("Nombre del empleado: ");
+	        String nombre = entrada.nextLine();
+	        
+	        System.out.println("Cargos disponibles: 1) Empleado, 2) Vendedor");
+	        System.out.print("Selecciona el cargo (1 o 2): ");
+	        String cargoStr;
+	        int opcionCargo = Integer.parseInt(entrada.nextLine());
+	        
+	        if (opcionCargo == 1) {
+	            cargoStr = "Empleado";
+	        } else if (opcionCargo == 2) {
+	            cargoStr = "Vendedor";
+	        } else {
+	            System.err.println("Opción de cargo inválida. Usando 'Empleado' por defecto.");
+	            cargoStr = "Empleado";
+	        }
+	        
+	        // La fecha de ingreso es la actual
+	        java.sql.Date fechaIngreso = new java.sql.Date(System.currentTimeMillis());
+	        
+	        // 2. INSERTAR EMPLEADO (activo = TRUE por defecto)
+	        // Usamos Statement.RETURN_GENERATED_KEYS para obtener el ID
+	        String consultaEmpleado = "INSERT INTO empleado (Nombre, Cargo, FechaIngreso) VALUES (?, ?, ?)";
+	        try (PreparedStatement psEmpleado = con.prepareStatement(consultaEmpleado, Statement.RETURN_GENERATED_KEYS)) {
+	            
+	            psEmpleado.setString(1, nombre);
+	            psEmpleado.setString(2, cargoStr);
+	            psEmpleado.setDate(3, fechaIngreso);
+	            
+	            int filasAfectadas = psEmpleado.executeUpdate();
+	            
+	            if(filasAfectadas > 0) {
+	                int idEmpleadoGenerado = -1;
+	                ResultSet rsKeys = psEmpleado.getGeneratedKeys();
+	                if (rsKeys.next()) {
+	                    idEmpleadoGenerado = rsKeys.getInt(1);
+	                }
+	                rsKeys.close();
+	                
+	                System.out.println("Empleado '" + nombre + "' (ID: " + idEmpleadoGenerado + ") registrado con éxito.");
+	                mostrarTodosLosEmpleados(con);
+	            } else {
+	                System.out.println("No se pudo añadir el empleado.");
+	            }
+	        }
+	        
+	    } catch (NumberFormatException e) {
+	        System.err.println("Error de formato: La opción de cargo debe ser un número válido.");
+	    } catch (SQLException e) {
+	        System.err.println("Error SQL al registrar empleado: " + e.getMessage());
+	    } catch (Exception e) {
+	        System.err.println("Error inesperado: " + e.getMessage());
+	    
+	    }
+	}
+
 	public static void main(String[] args) {
 	
-	 ConnectionDB();
-	
-	 // FIX: Llamar a la inicialización al comienzo del programa
+	 ConnectionDB();	
 	 inicializarZonasYStands();
 	 
 	 String opcion;
@@ -458,6 +567,8 @@ public class Main {
 		 eliminarJuguete();
 		 break;
 	 case "4":
+		 registrarEmpleado();
+		 break;
 	 case "5":
 	 case "6":
 	 case "7":
